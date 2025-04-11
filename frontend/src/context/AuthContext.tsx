@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem("token");
 
     setIsAuthenticated(!!token);
-    setLoading(false); // Se terminó de inicializar
+    setLoading(false);
   }, []);
 
   const login = (token: string) => {

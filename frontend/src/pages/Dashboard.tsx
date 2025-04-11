@@ -133,7 +133,6 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col gap-4 min-h-dvh dark text-foreground bg-background">
       <Navbar userName={userName} onNewTask={() => setIsModalOpen(true)} />
-      {/* <TaskFilters filter={filter} setFilter={setFilter} /> */}
       <div className="flex flex-col gap-2 mx-12">
         <TaskFilters
           filterDueDate={filterDueDate}

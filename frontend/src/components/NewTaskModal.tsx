@@ -7,7 +7,6 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/modal";
-import { Select, SelectItem } from "@heroui/select";
 import { useState } from "react";
 
 interface Props {
@@ -16,20 +15,21 @@ interface Props {
   onCreate: (task: any) => void;
 }
 
-const statusOptions = ["pendiente", "en progreso", "completada"];
-
 const NewTaskModal = ({ isOpen, onClose, onCreate }: Props) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("pendiente");
   const [dueDate, setDueDate] = useState("");
 
   const handleSubmit = () => {
-    onCreate({ title, description, status, dueDate });
+    const localDate = new Date(dueDate);
+    const utcMilliseconds =
+      localDate.getTime() - localDate.getTimezoneOffset() * 60 * 1000;
+    const utcDueDateString = new Date(utcMilliseconds).toISOString();
+
+    onCreate({ title, description, dueDate: utcDueDateString });
     onClose();
     setTitle("");
     setDescription("");
-    setStatus("pendiente");
     setDueDate("");
   };
 
@@ -48,15 +48,6 @@ const NewTaskModal = ({ isOpen, onClose, onCreate }: Props) => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <Select
-            label="Estado"
-            selectedKeys={[status]}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            {statusOptions.map((s) => (
-              <SelectItem key={s}>{s}</SelectItem>
-            ))}
-          </Select>
           <Input
             label="Fecha de entrega"
             type="date"

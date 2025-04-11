@@ -39,13 +39,6 @@ const TaskCard = ({ task, onStatusChange, onDelete }: Props) => {
     completada: "success",
   };
 
-  const availableOptions = [
-    "pendiente",
-    "en progreso",
-    "completada",
-    "delete",
-  ].filter((s) => s !== task.status);
-
   return (
     <Card className="w-full" shadow="sm">
       <CardHeader className="justify-between">
@@ -57,30 +50,6 @@ const TaskCard = ({ task, onStatusChange, onDelete }: Props) => {
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Opciones de tarea">
-            {/* {availableOptions.map((status) => {
-              if (status !== "delete") {
-                return (
-                  <DropdownItem
-                    key={status}
-                    onPress={() => onStatusChange(task._id, status)}
-                  >
-                    Cambiar a &quot;{status}&quot;
-                  </DropdownItem>
-                );
-              } else {
-                return (
-                  <DropdownItem
-                    key={"delete"}
-                    className="text-danger"
-                    color="danger"
-                    onPress={() => onDelete(task._id)}
-                  >
-                    Eliminar tarea
-                  </DropdownItem>
-                );
-              }
-            })} */}
-
             {task.status === "pendiente" ? (
               <>
                 <DropdownItem
