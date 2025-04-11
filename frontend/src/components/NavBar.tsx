@@ -19,7 +19,7 @@ const Navbar = ({ userName, onNewTask }: Props) => {
     <NextUINavbar className="shadow-md">
       <NavbarContent justify="start">
         <NavbarItem className="font-semibold text-lg">
-          Hola, {userName}
+          Bienvenido, <strong>{userName}</strong>
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">

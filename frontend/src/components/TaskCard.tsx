@@ -39,7 +39,7 @@ const TaskCard = ({ task, onStatusChange, onDelete }: Props) => {
     completada: "success",
   };
 
-  const availableStatuses = [
+  const availableOptions = [
     "pendiente",
     "en progreso",
     "completada",
@@ -57,7 +57,7 @@ const TaskCard = ({ task, onStatusChange, onDelete }: Props) => {
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Opciones de tarea">
-            {availableStatuses.map((status) => {
+            {/* {availableOptions.map((status) => {
               if (status !== "delete") {
                 return (
                   <DropdownItem
@@ -79,16 +79,41 @@ const TaskCard = ({ task, onStatusChange, onDelete }: Props) => {
                   </DropdownItem>
                 );
               }
-            })}
+            })} */}
 
-            {/* <DropdownItem
-              key={'delete'}
-              className="text-danger"
-              color="danger"
-              onPress={() => onDelete(task._id)}
-            >
-              Eliminar tarea
-            </DropdownItem> */}
+            {task.status === "pendiente" ? (
+              <>
+                <DropdownItem
+                  key="progreso-1"
+                  onPress={() => onStatusChange(task._id, "en progreso")}
+                >
+                  Cambiar a &quot;en progreso&quot;
+                </DropdownItem>
+              </>
+            ) : null}
+            {task.status === "en progreso" ? (
+              <>
+                <DropdownItem
+                  key="completada-1"
+                  onPress={() => onStatusChange(task._id, "completada")}
+                >
+                  Cambiar a &quot;completada&quot;
+                </DropdownItem>
+              </>
+            ) : null}
+
+            {task.status === "completada" ? (
+              <>
+                <DropdownItem
+                  key={"delete"}
+                  className="text-danger"
+                  color="danger"
+                  onPress={() => onDelete(task._id)}
+                >
+                  Eliminar tarea
+                </DropdownItem>
+              </>
+            ) : null}
           </DropdownMenu>
         </Dropdown>
       </CardHeader>

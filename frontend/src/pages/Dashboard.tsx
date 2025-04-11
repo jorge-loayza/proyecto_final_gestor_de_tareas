@@ -1,51 +1,75 @@
 /* eslint-disable no-console */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
-import API from '@/api/api';
-import Navbar from '@/components/NavBar';
-import NewTaskModal from '@/components/NewTaskModal';
-import TaskCard from '@/components/TaskCard';
-import TaskFilters from '@/components/TasksFilter';
+import API from "@/api/api";
+import Navbar from "@/components/NavBar";
+import NewTaskModal from "@/components/NewTaskModal";
+import TaskCard from "@/components/TaskCard";
+import TaskFilters from "@/components/TasksFilter";
 
 interface Task {
   _id: string;
   title: string;
   description: string;
-  status: 'pendiente' | 'en progreso' | 'completada';
+  status: "pendiente" | "en progreso" | "completada";
   dueDate: string;
 }
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [userName, setUserName] = useState('Usuario');
-  const [filter, setFilter] = useState('todas');
+  const [userName, setUserName] = useState("Usuario");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filterDueDate, setFilterDueDate] = useState("");
 
-  const token = localStorage.getItem('token');
+  const [filterStatus, setFilterStatus] = useState<
+    "todas" | "pendiente" | "en progreso" | "completada"
+  >("todas");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const token = localStorage.getItem("token");
 
   const fetchUser = async () => {
     try {
-      const res = await API.get('/auth/me', {
+      const res = await API.get("/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       setUserName(res.data.name);
     } catch (err) {
-      console.error('Error al obtener usuario:', err);
+      console.error("Error al obtener usuario:", err);
     }
   };
 
-  const fetchTasks = async () => {
-    try {
-      const res = await API.get('/tasks', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  const fetchTasks = useCallback(
+    async (
+      search: string = "",
+      status: "todas" | "pendiente" | "en progreso" | "completada" = "todas",
+      dueDate: string = "",
+    ) => {
+      try {
+        const params = new URLSearchParams();
 
-      setTasks(res.data || []);
-    } catch (err) {
-      console.error('Error al obtener tareas:', err);
-    }
-  };
+        if (search) {
+          params.append("search", search);
+        }
+        if (status !== "todas") {
+          params.append("status", status);
+        }
+        if (dueDate) {
+          params.append("dueDate", dueDate);
+        }
+
+        const res = await API.get(`/tasks?${params.toString()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setTasks(res.data || []);
+      } catch (err) {
+        console.error("Error al obtener tareas:", err);
+      }
+    },
+    [token],
+  );
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
@@ -56,20 +80,20 @@ const Dashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      fetchTasks();
+      fetchTasks(searchQuery, filterStatus);
     } catch (err) {
-      console.error('Error al cambiar estado de tarea:', err);
+      console.error("Error al cambiar estado de tarea:", err);
     }
   };
 
-  const handleCreateTask = async (taskData: Omit<Task, '_id'>) => {
+  const handleCreateTask = async (taskData: Omit<Task, "_id">) => {
     try {
-      await API.post('/tasks', taskData, {
+      await API.post("/tasks", taskData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchTasks();
+      fetchTasks(searchQuery, filterStatus);
     } catch (err) {
-      console.error('Error al crear tarea:', err);
+      console.error("Error al crear tarea:", err);
     }
   };
 
@@ -80,8 +104,25 @@ const Dashboard = () => {
       });
       fetchTasks();
     } catch (err) {
-      console.error('Error al eliminar tarea:', err);
+      console.error("Error al eliminar tarea:", err);
     }
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    fetchTasks(value, filterStatus);
+  };
+
+  const handleFilterChange = (
+    status: "todas" | "pendiente" | "en progreso" | "completada",
+  ) => {
+    setFilterStatus(status);
+    fetchTasks(searchQuery, status, filterDueDate);
+  };
+
+  const handleDueDateChange = (value: string) => {
+    setFilterDueDate(value);
+    fetchTasks(searchQuery, filterStatus, value);
   };
 
   useEffect(() => {
@@ -89,27 +130,34 @@ const Dashboard = () => {
     fetchTasks();
   }, []);
 
-  const filteredTasks =
-    filter === 'todas' ? tasks : tasks.filter((t) => t.status === filter);
-
   return (
-    <div className="p-4">
+    <div className="flex flex-col gap-4 min-h-dvh dark text-foreground bg-background">
       <Navbar userName={userName} onNewTask={() => setIsModalOpen(true)} />
-      <TaskFilters filter={filter} setFilter={setFilter} />
-      <NewTaskModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onCreate={handleCreateTask}
-      />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-        {filteredTasks.map((task) => (
-          <TaskCard
-            key={task._id}
-            task={task}
-            onDelete={handleDeleteTask}
-            onStatusChange={handleStatusChange}
-          />
-        ))}
+      {/* <TaskFilters filter={filter} setFilter={setFilter} /> */}
+      <div className="flex flex-col gap-2 mx-12">
+        <TaskFilters
+          filterDueDate={filterDueDate}
+          filterStatus={filterStatus}
+          searchQuery={searchQuery}
+          setFilterDueDate={handleDueDateChange}
+          setFilterStatus={handleFilterChange}
+          setSearchQuery={handleSearchChange}
+        />
+        <NewTaskModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onCreate={handleCreateTask}
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+          {tasks.map((task) => (
+            <TaskCard
+              key={task._id}
+              task={task}
+              onDelete={handleDeleteTask}
+              onStatusChange={handleStatusChange}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
