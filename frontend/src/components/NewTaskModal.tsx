@@ -21,12 +21,7 @@ const NewTaskModal = ({ isOpen, onClose, onCreate }: Props) => {
   const [dueDate, setDueDate] = useState("");
 
   const handleSubmit = () => {
-    const localDate = new Date(dueDate);
-    const utcMilliseconds =
-      localDate.getTime() - localDate.getTimezoneOffset() * 60 * 1000;
-    const utcDueDateString = new Date(utcMilliseconds).toISOString();
-
-    onCreate({ title, description, dueDate: utcDueDateString });
+    onCreate({ title, description, dueDate });
     onClose();
     setTitle("");
     setDescription("");

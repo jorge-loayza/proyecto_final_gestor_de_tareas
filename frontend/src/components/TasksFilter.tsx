@@ -4,7 +4,7 @@ import { Select, SelectItem } from "@heroui/select";
 interface Props {
   filterStatus: "todas" | "pendiente" | "en progreso" | "completada";
   setFilterStatus: (
-    value: "todas" | "pendiente" | "en progreso" | "completada"
+    value: "todas" | "pendiente" | "en progreso" | "completada",
   ) => void;
   searchQuery: string;
   setSearchQuery: (value: string) => void;
